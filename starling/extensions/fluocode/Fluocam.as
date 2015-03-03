@@ -1,22 +1,14 @@
 package starling.extensions.fluocode{
-	
-	import starling.animation.Tween;
-	import starling.animation.Transitions;
 
-	import starling.display.MovieClip;
-	import starling.display.DisplayObject;
-	import starling.events.Event;
-	import starling.display.Stage;
-	import starling.display.Sprite;
+import flash.geom.Rectangle;
 
-	import starling.textures.Texture;
-	import starling.core.Starling;
-	
-	import flash.display.Bitmap;
-	import starling.display.Image;
+import starling.animation.Transitions;
+import starling.animation.Tween;
+import starling.core.Starling;
+import starling.display.Sprite;
+import starling.events.Event;
 
-
-	public class Fluocam extends Sprite 
+public class Fluocam extends Sprite
 	{
 		public var targetCam:Sprite;
 		public var explorer:Sprite=new Sprite();
@@ -33,10 +25,10 @@ package starling.extensions.fluocode{
 
 		private var valueYCam:Number;
 		private var valueXCam:Number;
-		private var limitTop:Number;
+	/*	private var limitTop:Number;
 		private var limitBottom:Number;
 		private var limitLeft:Number;
-		private var limitRight:Number;
+		private var limitRight:Number;*/
 
 		private var mcOriginal:Sprite;
 		private var mcGoTo:Sprite;
@@ -67,7 +59,7 @@ package starling.extensions.fluocode{
 		
 					
 		private var countMaxLayers:int=5;
-		private var countObjectLayers:int=0
+		private var countObjectLayers:int=0;
 		private var objectsLayersX:Vector.<Sprite>=new Vector.<Sprite>(countObjectLayers);
 		private var objectsLayersY:Vector.<Sprite>=new Vector.<Sprite>(countObjectLayers);
 		private var depthLayersX:Vector.<int>=new Vector.<int>(countObjectLayers);
@@ -77,30 +69,30 @@ package starling.extensions.fluocode{
 		private var refreshCount=0;
 		
 		private var testTarget:Sprite=new Sprite();
+		private var limits:Rectangle;
 		
 		//<-- Requires an image in the path -->
 		//[Embed(source = "../../../media/target.png")]
 		//private static const targetCamIcon:Class;
 	
-		public function Fluocam(world:Sprite, widthScene:Number=0, heightScene:Number=0, test:Boolean=true, explorer:Sprite=null, dragAndZoom:Boolean=true)
+		public function Fluocam(world:Sprite, widthScene:Number=0, heightScene:Number=0, test:Boolean=true, explorer:Sprite=null, dragAndZoom:Boolean=true, limits:Rectangle = null)
 		{
 
-			this.test=test
+			this.test=test;
 			
 			this.widthScene=widthScene;
 			this.heightScene=heightScene;
 			this.dragAndZoom=dragAndZoom;
-			
-			/*
-			this.limitLeft=leftLimit;
+			this.limits = limits;
+
+			/*this.limitLeft=;
 			this.limitRight=rightLimit;
 			this.limitTop=upLimit;
 			this.limitBottom=downLimit;
-			
+			*/
 			this.correctionX = correctionX;
 			this.correctionY = correctionY;
-			*/
-			
+
 			(stage)?init():addEventListener(Event.ADDED_TO_STAGE, init);
 
 			refWorld = world;
@@ -244,17 +236,38 @@ package starling.extensions.fluocode{
 			//}else{
 			//refWorld.y = valueYCam;
 			//}
-			
-			/*
-			refWorld.x = (!isNaN(limitLeft))?((valueXCam>limitLeft)?valueXCam:limitLeft):valueXCam;			
-			refWorld.x = (!isNaN(limitRight))?((valueXCam>limitRight)?valueXCam:limitRight):valueXCam;			
+			if(limits){
+				//refWorld.x = valueXCam >= limits.x ? limits.x : valueXCam;
+				//limit Y
+				if(valueYCam >= limits.y){
+					refWorld.y = limits.y;
+				}else if((limits.height-stage.stageHeight)+valueYCam < 0){
+					refWorld.y = -(limits.height-stage.stageHeight);
+				}else{
+					refWorld.y = valueYCam;
+				}
 
-			refWorld.y = (!isNaN(limitTop))?((valueYCam>limitTop)?valueYCam:limitTop):valueYCam;			
-			refWorld.y = (!isNaN(limitBottom))?((valueYCam>limitBottom)?valueYCam:limitBottom):valueYCam;
-			*/
-			
-			refWorld.x = valueXCam;			
-			refWorld.y = valueYCam
+				//limit X
+				if(valueXCam >= limits.x){
+					refWorld.x = limits.x;
+				}else if((limits.width-stage.stageWidth)+valueXCam < 0){
+					refWorld.x = -(limits.width-stage.stageWidth);
+				}else{
+					refWorld.x = valueXCam;
+				}
+
+
+				//refWorld.y = (limits.height-stage.stageHeight)+refWorld.y <= 0 ? -(limits.height-stage.stageHeight) : valueYCam;
+				//trace("limits position: "+limits.y+","+limits.height);
+				//refWorld.x = valueXCam;
+				//refWorld.y = valueYCam;
+			}else{
+				refWorld.x = valueXCam;
+				refWorld.y = valueYCam;
+			}
+
+
+
 		}
 
 
